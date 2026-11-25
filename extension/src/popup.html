@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="popup">
+  <header>
+    <img src="icons/icon48.png" alt="" width="28" height="28" />
+    <h1>MuktiVPN</h1>
+    <a id="openOptions" class="link" href="#" title="Servers">⚙</a>
+  </header>
+
+  <section id="noServers" hidden>
+    <p>No server added yet.</p>
+    <button id="addFirst" class="secondary">Add a server</button>
+  </section>
+
+  <section id="main" hidden>
+    <button id="power" class="power" aria-label="Connect"><span>⏻</span></button>
+    <p id="status" class="status">Disconnected</p>
+
+    <label class="field">
+      <span>Server</span>
+      <select id="server"></select>
+    </label>
+
+    <div class="ip">Your IP: <b id="ip">…</b></div>
+    <p id="error" class="error" hidden></p>
+    <button id="grant" class="secondary" hidden>Allow access to all sites</button>
+  </section>
+
+  <script src="popup.js"></script>
+</body>
+</html>

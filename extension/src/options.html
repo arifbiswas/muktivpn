@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>MuktiVPN – Servers</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="options">
+  <header>
+    <img src="icons/icon48.png" alt="" width="32" height="32" />
+    <h1>MuktiVPN servers</h1>
+  </header>
+
+  <section class="card">
+    <h2>Your servers</h2>
+    <ul id="list" class="list"></ul>
+    <p id="empty" class="muted">No servers yet. Add one below or import the JSON printed by <code>install.sh</code>.</p>
+  </section>
+
+  <section class="card">
+    <h2 id="formTitle">Add server</h2>
+    <form id="form" autocomplete="off">
+      <input type="hidden" id="id" />
+      <label class="field"><span>Name</span><input id="name" placeholder="Singapore #1" required /></label>
+      <label class="field"><span>Host (domain)</span><input id="host" placeholder="myvpn.duckdns.org" required /></label>
+      <label class="field"><span>Port</span><input id="port" type="number" min="1" max="65535" value="443" required /></label>
+      <label class="field"><span>Username</span><input id="username" required /></label>
+      <label class="field"><span>Password</span><input id="password" type="password" required /></label>
+      <div class="row">
+        <button type="submit">Save</button>
+        <button type="button" id="cancel" class="secondary" hidden>Cancel</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Import / export</h2>
+    <p class="muted">Paste one server object or an array of servers (JSON).</p>
+    <textarea id="json" rows="7" spellcheck="false"></textarea>
+    <div class="row">
+      <button id="import">Import</button>
+      <button id="export" class="secondary">Export to box</button>
+    </div>
+    <p id="msg" class="muted"></p>
+  </section>
+
+  <script src="options.js"></script>
+</body>
+</html>
