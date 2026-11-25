@@ -1,4 +1,3 @@
-const api = globalThis.browser ?? globalThis.chrome;
 const $ = (id) => document.getElementById(id);
 const FIELDS = ["name", "host", "port", "username", "password"];
 
@@ -20,6 +19,31 @@ function clean(s) {
     password: String(s.password ?? ""),
   };
 }
+
+async function renderFree() {
+  const { freeServers = [] } = await api.storage.local.get("freeServers");
+  $("freeEmpty").hidden = freeServers.length > 0;
+  $("freeList").replaceChildren(
+    ...freeServers.map((s) => {
+      const li = document.createElement("li");
+      const info = document.createElement("div");
+      const b = document.createElement("b");
+      b.textContent = `${flag(s.country)}  ${s.name}`;
+      const small = document.createElement("small");
+      small.textContent = `${s.host}:${s.port}`;
+      info.append(b, small);
+      li.append(info);
+      return li;
+    })
+  );
+}
+$("refreshFree").addEventListener("click", async () => {
+  $("refreshFree").disabled = true;
+  await refreshFreeServers();
+  await renderFree();
+  $("refreshFree").disabled = false;
+});
+renderFree();
 
 async function render() {
   const servers = await getServers();

@@ -1,23 +1,31 @@
-const api = globalThis.browser ?? globalThis.chrome;
 const $ = (id) => document.getElementById(id);
 
 async function render() {
-  const { servers = [], activeId, connected = false, lastError = "" } = await api.storage.local.get([
-    "servers", "activeId", "connected", "lastError",
+  const { activeId, connected = false, lastError = "" } = await api.storage.local.get([
+    "activeId", "connected", "lastError",
   ]);
+  const servers = await getAllServers();
 
   $("noServers").hidden = servers.length > 0;
   $("main").hidden = servers.length === 0;
   if (!servers.length) return;
 
   const sel = $("server");
-  sel.replaceChildren(
-    ...servers.map((s) => {
+  const group = (label, list) => {
+    const g = document.createElement("optgroup");
+    g.label = label;
+    for (const s of list) {
       const o = document.createElement("option");
       o.value = s.id;
-      o.textContent = s.name || s.host;
-      return o;
-    })
+      o.textContent = `${flag(s.country)}  ${s.name || s.host}`;
+      g.append(o);
+    }
+    return g;
+  };
+  const free = servers.filter((s) => s.free), mine = servers.filter((s) => !s.free);
+  sel.replaceChildren(
+    ...(free.length ? [group("Free servers", free)] : []),
+    ...(mine.length ? [group("My servers", mine)] : [])
   );
   sel.value = activeId && servers.some((s) => s.id === activeId) ? activeId : servers[0].id;
 
@@ -71,4 +79,8 @@ $("addFirst").addEventListener("click", openOptions);
 
 api.storage.onChanged.addListener(render);
 render();
+// first run or a failed fetch earlier: try loading the free list now
+api.storage.local.get("freeServers").then(({ freeServers }) => {
+  if (!freeServers?.length) refreshFreeServers();
+});
 checkIp();

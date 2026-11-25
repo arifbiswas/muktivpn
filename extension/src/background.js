@@ -1,6 +1,6 @@
 // MuktiVPN background — works in Chrome / Edge / Brave / Opera / Vivaldi (MV3 service worker)
 // and Firefox (MV3 event page). The same file is used for both builds.
-const api = globalThis.browser ?? globalThis.chrome;
+if (typeof importScripts === "function") importScripts("common.js"); // Chromium service worker
 const IS_FIREFOX = typeof globalThis.browser !== "undefined" && !!api.runtime.getBrowserInfo;
 
 const BYPASS = ["localhost", "127.0.0.1", "::1", "<local>", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"];
@@ -8,10 +8,11 @@ const BYPASS = ["localhost", "127.0.0.1", "::1", "<local>", "10.0.0.0/8", "172.1
 let state = { connected: false, server: null };
 
 async function loadState() {
-  const { connected = false, servers = [], activeId = null, lastError: saved = "" } = await api.storage.local.get([
-    "connected", "servers", "activeId", "lastError",
+  const { connected = false, activeId = null, lastError: saved = "" } = await api.storage.local.get([
+    "connected", "activeId", "lastError",
   ]);
   lastError = saved;
+  const servers = await getAllServers();
   const server = servers.find((s) => s.id === activeId) ?? servers[0] ?? null;
   state = { connected: connected && !!server, server };
   return state;
@@ -173,11 +174,25 @@ async function applyAll() {
 
 api.storage.onChanged.addListener((changes, area) => {
   if (area !== "local") return;
-  if (changes.connected || changes.activeId || changes.servers) {
+  if (changes.connected || changes.activeId || changes.servers || changes.freeServers) {
     if (changes.connected || changes.activeId || changes.servers) clearError();
     applyAll();
   }
 });
-api.runtime.onStartup.addListener(applyAll);
-api.runtime.onInstalled.addListener(applyAll);
+// Keep the free server list fresh (every 6 hours).
+async function refreshAndApply() {
+  await refreshFreeServers();
+  await applyAll();
+}
+api.alarms.create("refresh-free-servers", { periodInMinutes: 360 });
+api.alarms.onAlarm.addListener((a) => a.name === "refresh-free-servers" && refreshFreeServers());
+api.runtime.onStartup.addListener(refreshAndApply);
+api.runtime.onInstalled.addListener(async () => {
+  await refreshFreeServers();
+  // first install: pre-select the first free server so the user only has to press Connect
+  const { activeId } = await api.storage.local.get("activeId");
+  const all = await getAllServers();
+  if (!activeId && all.length) await api.storage.local.set({ activeId: all[0].id });
+  await applyAll();
+});
 applyAll();

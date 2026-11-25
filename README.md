@@ -83,6 +83,31 @@ sudo qrencode -t ansiutf8 < /root/muktivpn/client1.conf
 - localhost / লোকাল নেটওয়ার্ক বাইপাস
 - টুলবারে সবুজ **ON** ব্যাজ
 
+## ধাপ ৪.৫ — সবার জন্য ফ্রি সার্ভার (Free servers)
+
+এক্সটেনশন ইনস্টল করলেই ইউজার **Free servers** লিস্ট দেখে — কিছু সেটআপ করতে হয় না, শুধু Connect চাপলেই চলে।
+লিস্টটা আসে এই repo-র [`servers.json`](servers.json) থেকে। এক্সটেনশন প্রতি ৬ ঘণ্টায় এটা নতুন করে পড়ে,
+তাই **নতুন সার্ভার যোগ করতে নতুন এক্সটেনশন ভার্সন পাবলিশ করতে হয় না** — শুধু `servers.json` এডিট করে push করুন।
+
+1. প্রতিটা ফ্রি VPS এ `install.sh` চালান (Oracle Free Tier এ একাধিক VM বানানো যায়, বিভিন্ন region এ)।
+2. স্ক্রিপ্ট যে JSON দেখায় সেটা `servers.json` এ যোগ করুন, সাথে `country` (২ অক্ষরের দেশ কোড, ফ্ল্যাগ দেখানোর জন্য):
+
+```json
+{
+  "version": 1,
+  "servers": [
+    { "name": "Singapore 1", "country": "SG", "host": "sg1.duckdns.org", "port": 443, "username": "mukti", "password": "..." },
+    { "name": "Germany 1",   "country": "DE", "host": "de1.duckdns.org", "port": 443, "username": "mukti", "password": "..." }
+  ]
+}
+```
+
+3. `git commit` + `git push` — কয়েক ঘণ্টার মধ্যে সব ইউজারের লিস্টে চলে আসবে (Options → *Refresh list* চাপলে সাথে সাথে)।
+
+> **সতর্কতা:** এই লিস্ট public — এর পাসওয়ার্ড যে কেউ দেখতে পারবে, তাই সার্ভারটা কার্যত সবার জন্য খোলা।
+> সার্ভারের ব্যান্ডউইথ সীমা (Oracle Free: মাসে ১০ TB) আর ক্লাউড কোম্পানির নিয়ম খেয়াল রাখুন; কেউ অপব্যবহার করলে সেটা আপনার সার্ভারের IP থেকে হবে।
+> দরকার হলে সার্ভারে `htpasswd /etc/squid/passwd mukti` দিয়ে পাসওয়ার্ড বদলে `servers.json` আপডেট করুন।
+
 ## ধাপ ৫ — ফোন ও PC অ্যাপ
 
 <https://www.wireguard.com/install/> থেকে অফিসিয়াল অ্যাপ নামান →
@@ -115,6 +140,7 @@ sudo qrencode -t ansiutf8 < /root/muktivpn/client1.conf
 server/install.sh            সার্ভার সেটআপ (WireGuard + HTTPS proxy + ফ্রি SSL)
 extension/src/               এক্সটেনশনের কোড (সব ব্রাউজারে এক কোড)
 extension/manifest.*.json    Chrome ও Firefox এর manifest
+servers.json                 সবার জন্য ফ্রি সার্ভার লিস্ট (এক্সটেনশন এখান থেকে পড়ে)
 extension/build.sh           বিল্ড + zip
 extension/tools/make-icons.mjs  আইকন জেনারেটর
 ```

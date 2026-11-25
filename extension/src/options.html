@@ -12,6 +12,13 @@
   </header>
 
   <section class="card">
+    <h2>Free servers</h2>
+    <ul id="freeList" class="list"></ul>
+    <p id="freeEmpty" class="muted">No free servers available right now.</p>
+    <div class="row"><button id="refreshFree" class="secondary">Refresh list</button></div>
+  </section>
+
+  <section class="card">
     <h2>Your servers</h2>
     <ul id="list" class="list"></ul>
     <p id="empty" class="muted">No servers yet. Add one below or import the JSON printed by <code>install.sh</code>.</p>
@@ -44,6 +51,7 @@
     <p id="msg" class="muted"></p>
   </section>
 
+  <script src="common.js"></script>
   <script src="options.js"></script>
 </body>
 </html>
